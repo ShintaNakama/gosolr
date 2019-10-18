@@ -12,7 +12,13 @@ import (
 )
 
 // passArgs accepts multiple arguments and returns their values.
-func passArgs() (c, a, r, q, fq, sort, st, row, fl, wt, indent string, mock bool, err error) {
+func passArgs() (host, c, a, r, q, fq, sort, st, row, fl, wt, indent string, mock bool, err error) {
+	envSolrHost := os.Getenv("SOLRHOST")
+	if envSolrHost == "" {
+		err = errors.New("SOLRHOSTが設定されていません")
+		return
+	}
+	flag.StringVar(&host, "host", envSolrHost, "hostのURL")
 	flag.StringVar(&c, "c", "group", "core: 対象のsolr-core")
 	flag.StringVar(&a, "a", "select", "action: 実行するアクション。原則 select")
 	flag.StringVar(&r, "recommend", "", "recommend-type")
@@ -36,13 +42,13 @@ func passArgs() (c, a, r, q, fq, sort, st, row, fl, wt, indent string, mock bool
 }
 
 func main() {
-	c, a, r, q, fq, sort, st, row, fl, wt, indent, mock, err := passArgs()
+	host, c, a, r, q, fq, sort, st, row, fl, wt, indent, mock, err := passArgs()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
-	cli := gosolr.NewClient(c, a, r, q, fq, sort, st, row, fl, wt, indent, mock)
+	cli := gosolr.NewClient(host, c, a, r, q, fq, sort, st, row, fl, wt, indent, mock)
 	ctx := context.Background()
 
 	result, err := defaultSearchExec(ctx, cli)
