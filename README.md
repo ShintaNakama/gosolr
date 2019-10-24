@@ -19,4 +19,12 @@
   - help
   ```
   ./gosolr --help
+
+  # 特定の1つのfieldを環境変数で登録し、検索できるようにする
+  ex) export FINDFIELD=hoge
+  ./gosolr -find=fuga
+  # -fq=hoge:fuga で検索する
+
+  # Numfoundの値だけ取得する
+  ./gosolr --count
   ```

@@ -12,7 +12,7 @@ import (
 )
 
 // passArgs accepts multiple arguments and returns their values.
-func passArgs() (host, c, a, r, q, fq, sort, st, row, fl, wt, indent string, mock bool, err error) {
+func passArgs() (host, c, a, r, q, fq, sort, st, row, fl, wt, indent, find string, count, mock bool, err error) {
 	envSolrHost := os.Getenv("SOLRHOST")
 	if envSolrHost == "" {
 		err = errors.New("SOLRHOSTが設定されていません")
@@ -31,8 +31,11 @@ func passArgs() (host, c, a, r, q, fq, sort, st, row, fl, wt, indent string, moc
 	flag.StringVar(&wt, "wt", "json", "wt: レスポンス形式(json、xml、python、ruby、php、csv) ex) -wt=json")
 	flag.StringVar(&indent, "indent", "true", "indent: インデント ex) -indent=true")
 
+	flag.StringVar(&find, "find", "", "find: ex) -find=hoge")
 	// mock
 	flag.BoolVar(&mock, "mock", false, "mockを使ってresponseを生成するかどうか (default false)")
+	// count
+	flag.BoolVar(&count, "count", false, "count: numfoundだけを出力 ex) -count=true")
 
 	if flag.Parse(); flag.Parsed() {
 		return
@@ -42,10 +45,14 @@ func passArgs() (host, c, a, r, q, fq, sort, st, row, fl, wt, indent string, moc
 }
 
 func main() {
-	host, c, a, r, q, fq, sort, st, row, fl, wt, indent, mock, err := passArgs()
+	host, c, a, r, q, fq, sort, st, row, fl, wt, indent, find, count, mock, err := passArgs()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
+	}
+	if len(find) > 0 {
+		envFindFileld := os.Getenv("FINDFIELD")
+		fq = envFindFileld + ":" + find
 	}
 
 	cli := gosolr.NewClient(host, c, a, r, q, fq, sort, st, row, fl, wt, indent, mock)
@@ -56,12 +63,22 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	re, err := json.MarshalIndent(result, "", "  ")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+	if count {
+		header, err := json.MarshalIndent(result.ResponseHeader, "", "  ")
+		count, err := json.Marshal(result.Response.NumFound)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		fmt.Fprintln(os.Stdout, string(header)+"\ncount: "+string(count))
+	} else {
+		re, err := json.MarshalIndent(result, "", "  ")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		fmt.Fprintln(os.Stdout, string(re))
 	}
-	fmt.Fprintln(os.Stdout, string(re))
 }
 
 func defaultSearchExec(ctx context.Context, cli *gosolr.Client) (*gosolr.Result, error) {
