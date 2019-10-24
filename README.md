@@ -30,5 +30,5 @@ ex) export FINDFIELD=hoge
 ```
 
 # Numfoundの値だけ取得する
-./gosolr --count
+./gosolr --count=true
 ```
