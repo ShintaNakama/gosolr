@@ -12,13 +12,10 @@ import (
 )
 
 // passArgs accepts multiple arguments and returns their values.
-func passArgs() (host, c, a, r, q, fq, sort, st, row, fl, wt, indent, find string, count, mock bool, err error) {
-	envSolrHost := os.Getenv("SOLRHOST")
-	if envSolrHost == "" {
-		err = errors.New("SOLRHOSTが設定されていません")
-		return
-	}
-	flag.StringVar(&host, "host", envSolrHost, "hostのURL")
+// func passArgs() (host, c, a, r, q, fq, sort, st, row, fl, wt, indent, find string, count, mock bool, err error) {
+func passArgs() (host, c, a, r, q, fq, sort, st, row, fl, wt, indent, find string, count bool, err error) {
+	// func passArgs() (host, c, a, r, q, sort, st, row, fl, wt, indent, find string, count, mock bool, err error) {
+	flag.StringVar(&host, "host", "http://localhost:8983/solr/", "hostのURL")
 	flag.StringVar(&c, "c", "group", "core: 対象のsolr-core")
 	flag.StringVar(&a, "a", "select", "action: 実行するアクション。原則 select")
 	flag.StringVar(&r, "recommend", "", "recommend-type")
@@ -31,9 +28,9 @@ func passArgs() (host, c, a, r, q, fq, sort, st, row, fl, wt, indent, find strin
 	flag.StringVar(&wt, "wt", "json", "wt: レスポンス形式(json、xml、python、ruby、php、csv) ex) -wt=json")
 	flag.StringVar(&indent, "indent", "true", "indent: インデント ex) -indent=true")
 
-	flag.StringVar(&find, "find", "", "find: ex) -find=hoge")
+	flag.StringVar(&find, "find", "", "find: ex) -find=任意のuniqkeyを指定して検索ができる")
 	// mock
-	flag.BoolVar(&mock, "mock", false, "mockを使ってresponseを生成するかどうか (default false)")
+	// flag.BoolVar(&mock, "mock", false, "mockを使ってresponseを生成するかどうか (default false)")
 	// count
 	flag.BoolVar(&count, "count", false, "count: numfoundだけを出力 ex) -count=true")
 
@@ -45,17 +42,20 @@ func passArgs() (host, c, a, r, q, fq, sort, st, row, fl, wt, indent, find strin
 }
 
 func main() {
-	host, c, a, r, q, fq, sort, st, row, fl, wt, indent, find, count, mock, err := passArgs()
+	// host, c, a, r, q, sort, st, row, fl, wt, indent, find, count, mock, err := passArgs()
+	// host, c, a, r, q, fq, sort, st, row, fl, wt, indent, find, count, mock, err := passArgs()
+	host, c, a, r, q, fq, sort, st, row, fl, wt, indent, find, count, err := passArgs()
+	fmt.Println(q)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 	if len(find) > 0 {
-		envFindFileld := os.Getenv("FINDFIELD")
-		fq = envFindFileld + ":" + find
+		fq = "uniq_key:" + find
 	}
 
-	cli := gosolr.NewClient(host, c, a, r, q, fq, sort, st, row, fl, wt, indent, mock)
+	cli := gosolr.NewClient(host, c, a, r, q, fq, sort, st, row, fl, wt, indent)
+	// cli := gosolr.NewClient(host, c, a, r, q, sort, st, row, fl, wt, indent, mock)
 	ctx := context.Background()
 
 	result, err := defaultSearchExec(ctx, cli)

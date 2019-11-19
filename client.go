@@ -24,12 +24,15 @@ type Client struct {
 }
 
 // NewClient creates a client struct
-func NewClient(host, core, action, r, q, fq, sort, st, row, fl, wt, indent string, mock bool) *Client {
+func NewClient(host, core, action, r, q, fq, sort, st, row, fl, wt, indent string) *Client {
+	// func NewClient(host, core, action, r, q, fq, sort, st, row, fl, wt, indent string, mock bool) *Client {
+	// func NewClient(host, core, action, r, q, sort, st, row, fl, wt, indent string, mock bool) *Client {
 	var cli Client
 	cli.DefaultSearch = &defaultSearch{cli: &cli}
 	cli.BaseURL = host + core + "/" + action
 	cli.Params = &Params{q: q, fq: fq, sort: sort, start: st, rows: row, fl: fl, wt: wt, indent: indent}
-	cli.Mock = mock
+	// cli.Params = &Params{q: q, sort: sort, start: st, rows: row, fl: fl, wt: wt, indent: indent}
+	// cli.Mock = mock
 	return &cli
 }
 
@@ -57,7 +60,6 @@ func (cli *Client) get(ctx context.Context, params url.Values, v interface{}) er
 	if params != nil {
 		reqURL += "?" + params.Encode()
 	}
-
 	req, err := http.NewRequest(http.MethodGet, reqURL, nil)
 	if err != nil {
 		return errors.Wrap(err, "cannot create HTTP request")
