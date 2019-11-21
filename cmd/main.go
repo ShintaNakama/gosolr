@@ -14,13 +14,13 @@ import (
 // passArgs accepts multiple arguments and returns their values.
 func passArgs() (host, c, a, r, q, fq, sort, st, row, fl, wt, indent, find string, count, mock bool, err error) {
 	flag.StringVar(&host, "host", "http://localhost:8983/solr/", "hostのURL")
-	flag.StringVar(&c, "c", "group", "core: 対象のsolr-core")
-	flag.StringVar(&a, "a", "select", "action: 実行するアクション。原則 select")
+	flag.StringVar(&c, "core", "group", "core: 対象のsolr-core")
+	flag.StringVar(&a, "action", "select", "action: 実行するアクション。原則 select")
 	flag.StringVar(&r, "recommend", "", "recommend-type")
 	flag.StringVar(&q, "q", "*:*", "q: 検索クエリ ex) -q=client_code:r")
 	flag.StringVar(&fq, "fq", "", "fq: サブ検索クエリ ex) -fq=client_code:n")
 	flag.StringVar(&sort, "sort", "", "sort: ソート順 ex) -sort=asc")
-	flag.StringVar(&st, "st", "0", "start: 開始位置 ex) -start=10")
+	flag.StringVar(&st, "start", "0", "start: 開始位置 ex) -start=10")
 	flag.StringVar(&row, "rows", "1", "rows: 取得数 ex) -rows=10")
 	flag.StringVar(&fl, "fl", "", "fl: 取得するフィールド ex) -fl=dwelling_name")
 	flag.StringVar(&wt, "wt", "json", "wt: レスポンス形式(json、xml、python、ruby、php、csv) ex) -wt=json")
